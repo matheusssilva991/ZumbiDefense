@@ -1,63 +1,54 @@
--- ============================================
--- CLASSE GAMEOVER
--- Tela de fim de jogo exibida quando o
--- jogador perde (vida da casa chega a zero)
--- ============================================
+local Config = require "configuracao"
 
-Gameover = Classe:extend()
+local Gameover = {}
+local x, y = (Config.largura - 510) / 2, (Config.altura - 310) / 2
+local botao = {x = x + 148, y = y + 237, largura = 214, altura = 43}
 
-function Gameover:new()
-    -- Carregar imagem de fundo
-    self.img_fundo = love.graphics.newImage("Sprites/background/fundo_gameover.png")
-
-    -- Dimensões e posição da janela de game over
-    self.larg = 510
-    self.alt = 310
-    self.x = (LARGURA_TELA - self.larg)/2  -- Centralizar horizontalmente
-    self.y = (ALTURA_TELA - self.alt)/2    -- Centralizar verticalmente
+function Gameover.noBotao(mouseX, mouseY)
+    return mouseX >= botao.x and mouseX < botao.x + botao.largura
+        and mouseY >= botao.y and mouseY < botao.y + botao.altura
 end
 
--- Método update (não utilizado, mas mantido por consistência)
-function Gameover:update(dt)
-    -- Nenhuma lógica necessária aqui
+local function fundo(recursos, titulo)
+    local g = love.graphics
+    g.setColor(0.02, 0.02, 0.03, 0.74)
+    g.rectangle("fill", 0, 0, Config.largura, Config.altura)
+    g.setColor(0.075, 0.08, 0.11)
+    g.rectangle("fill", x, y, 510, 310, 5)
+    g.setColor(1, 1, 1, 0.26)
+    g.draw(recursos.imagens.fundoGameover, x + 5, y + 5)
+    g.setColor(1, 1, 1)
+    g.setFont(recursos.titulo)
+    g.printf(titulo, x, y + 35, 510, "center")
+    g.setFont(recursos.fonte)
 end
 
--- Desenhar tela de game over com estatísticas
-function Gameover:draw()
-    -- Configurar fonte grande para o título
-    self.font = love.graphics.setNewFont("fontes/Pixeled.ttf", 30)
-    self.txtGameOver = "FIM DE JOGO!"
+function Gameover.draw(recursos, partida, recorde, falhaAoSalvar)
+    fundo(recursos, "FIM DE JOGO")
+    local g = love.graphics
+    g.printf(("Onda %d   |   %d abates   |   %d invasões"):format(
+        partida.onda, partida.abates, partida.invasoes), x + 10, y + 121, 490, "center")
+    g.setColor(0.98, 0.79, 0.43)
+    g.printf(("Recorde: onda %d, %d abates"):format(recorde.onda, recorde.abates),
+        x + 10, y + 157, 490, "center")
+    if falhaAoSalvar then
+        g.printf("Não foi possível salvar o recorde.", x + 10, y + 187, 490, "center")
+    end
 
-    -- Calcular posição centralizada do texto
-    self.txtGameOverx = (LARGURA_TELA - self.font:getWidth(self.txtGameOver)) / 2
-    self.txtGameOvery = (ALTURA_TELA - self.font:getHeight()) / 2
-
-    -- Desenhar retângulo de fundo preto
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.rectangle("fill", self.x, self.y, self.larg, self.alt)
-    love.graphics.setColor(1, 1, 1)
-
-    -- Desenhar imagem de fundo decorativa
-    love.graphics.draw(self.img_fundo, self.x + 5, self.y +5)
-
-    -- Desenhar título "FIM DE JOGO!" com efeito de sombra
-    love.graphics.setColor(0, 0, 0)  -- Sombra
-    love.graphics.print(self.txtGameOver, self.txtGameOverx+3, self.txtGameOvery - 80+3)
-    love.graphics.setColor(1, 1, 1)  -- Texto branco
-    love.graphics.print(self.txtGameOver, self.txtGameOverx, self.txtGameOvery - 80)
-
-    -- Voltar para a fonte padrão
-    love.graphics.setFont(fonte)
-
-    -- Desenhar estatística: Zumbis eliminados
-    love.graphics.setColor(0, 0, 0)  -- Sombra
-    love.graphics.print("ZUMBIS ELIMINADOS: ".. zumbisMortos, self.txtGameOverx - 17, self.txtGameOvery + 73)
-    love.graphics.setColor(1, 1, 1)  -- Texto branco
-    love.graphics.print("ZUMBIS ELIMINADOS: ".. zumbisMortos, self.txtGameOverx - 20, self.txtGameOvery + 70)
-
-    -- Desenhar estatística: Zumbis que invadiram
-    love.graphics.setColor(0, 0, 0)  -- Sombra
-    love.graphics.print("ZUMBIS INVASORES: ".. zumbisEntrou, self.txtGameOverx - 17, self.txtGameOvery + 113)
-    love.graphics.setColor(1, 1, 1)  -- Texto branco
-    love.graphics.print("ZUMBIS INVASORES: ".. zumbisEntrou, self.txtGameOverx - 20, self.txtGameOvery + 110)
+    local mouseX, mouseY = love.mouse.getPosition()
+    if Gameover.noBotao(mouseX, mouseY) then
+        g.setColor(0.27, 0.48, 0.34)
+    else
+        g.setColor(0.16, 0.33, 0.24)
+    end
+    g.rectangle("fill", botao.x, botao.y, botao.largura, botao.altura, 4)
+    g.setColor(1, 1, 1)
+    g.printf("Reiniciar [R]", botao.x, botao.y + 6, botao.largura, "center")
 end
+
+function Gameover.drawPausa(recursos)
+    fundo(recursos, "JOGO PAUSADO")
+    love.graphics.printf("Pressione P para retomar", x, y + 138, 510, "center")
+end
+
+return Gameover

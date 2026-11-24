@@ -8,17 +8,17 @@
 
 ## 📖 Sobre o Projeto
 
-**Zumbi Defense: A Última Resistência** é um jogo de defesa de torres (tower defense) desenvolvido em Lua usando o framework LÖVE2D. O jogador precisa defender sua casa contra ondas intermináveis de zumbis, posicionando estrategicamente torres de tiro e bombas para impedir que os mortos-vivos cheguem ao objetivo.
+**Zumbi Defense: A Última Resistência** é um jogo de defesa de torres (tower defense) desenvolvido em Lua usando o framework LÖVE2D. Defenda a casa contra ondas intermináveis de zumbis usando torres de tiro, torres de lentidão e bombas.
 
 O jogo foi desenvolvido como projeto da disciplina **TAC1 - Tópicos Avançados em Computação**, com foco em desenvolvimento de jogos.
 
 ## 🎮 Características
 
 - **4 tipos diferentes de zumbis** com velocidades, dano e vida variados
+- **Ondas progressivas** com intervalos para montar a defesa
 - **Sistema de torres automáticas** que detectam e atacam zumbis dentro do raio de alcance
 - **Bombas de área** que causam dano explosivo em múltiplos inimigos
-- **Sistema de economia** baseado em moedas obtidas ao eliminar zumbis
-- **Sistema de vida regenerativa** - ganhe vida bônus a cada 20 zumbis eliminados
+- **Recorde local** pela maior onda alcançada, com desempate pelo total de abates
 - **Animações suaves** utilizando a biblioteca anim8
 - **Ambientação sonora** com efeitos de áudio temáticos
 - **Efeito visual noturno** para atmosfera tensa e assustadora
@@ -34,11 +34,11 @@ O jogo foi desenvolvido como projeto da disciplina **TAC1 - Tópicos Avançados 
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/matheusssilva991/projeto-tower-defense.git
-cd projeto-tower-defense
+git clone https://github.com/matheusssilva991/ZumbiDefense.git
+cd ZumbiDefense
 ```
 
-1. Execute o jogo:
+2. Execute o jogo:
 
 ```bash
 love .
@@ -46,28 +46,38 @@ love .
 
 ### Controles
 
-- **Mouse (Clique Esquerdo)**: Comprar e posicionar torres/bombas
-- **Interface da Loja**: Clique nos ícones na parte inferior para selecionar:
-  - **Torre Automática** ($20): Ataca zumbis automaticamente em um raio de 150px
-  - **Bomba Explosiva** ($10): Causa dano em área ao explodir
+- Use o **clique esquerdo** para selecionar uma defesa na loja e outro clique para colocá-la. O círculo mostra a área de atuação no ponto de instalação.
+- Use **Esc** ou **clique direito** para cancelar a seleção.
+- Use **P** para pausar ou retomar.
+- Após a derrota, pressione **R** ou clique em **Reiniciar**.
 
 ### Regras
 
-1. **Objetivo**: Impedir que os zumbis cheguem à sua casa
-2. **Moedas**: Ganhe moedas ao eliminar zumbis (quantidade varia por tipo)
-3. **Posicionamento**:
-   - Torres podem ser colocadas apenas em **blocos de grama** (áreas azuis)
-   - Bombas podem ser colocadas em **blocos de areia** (o caminho dos zumbis)
-4. **Vida**: Sua casa começa com 100 pontos de vida
-5. **Bônus**: A cada 20 zumbis eliminados, ganhe +10 de vida
-6. **Game Over**: O jogo termina quando a vida da casa chega a zero
+1. A partida começa com **100 de vida**, **60 moedas** e **12 segundos** para preparar a defesa.
+2. Depois que todos os zumbis de uma onda forem eliminados ou invadirem a casa, você tem **10 segundos** para se preparar para a próxima onda.
+3. Eliminar zumbis rápidos, médios, resistentes e tanques rende **1, 2, 3 e 4 moedas**, respectivamente. A cada **20 abates**, a casa ganha **10 pontos de vida**.
+4. A partida termina quando a casa chega a zero. O jogo salva o recorde local pela maior onda alcançada e usa os abates para desempatar.
+
+### Defesas
+
+| Defesa | Preço | Terreno | Efeito |
+|---|---:|---|---|
+| Torre de tiro | 20 | Grama | 20 de dano a cada 0,8 s, com alcance de 150 px |
+| Bomba | 10 | Areia | Explode na hora e causa 80 de dano em um raio de 150 px |
+| Torre de lentidão | 25 | Grama | A cada 1 s, reduz por 2 s a velocidade de um alvo a até 130 px. A redução é de 35%. |
+
+As torres priorizam o zumbi mais avançado no caminho. Use a bomba para finalizar grupos que já sofreram dano das torres.
 
 ## 🏗️ Estrutura do Projeto
 
 ```
-projeto-tower-defense/
-├── main.lua                    # Loop principal do jogo
+ZumbiDefense/
+├── main.lua                    # Controles e renderização no LÖVE
 ├── conf.lua                    # Configurações do LÖVE2D
+├── configuracao.lua            # Mapa e parâmetros de balanceamento
+├── partida.lua                 # Simulação de combate e ondas
+├── recorde.lua                 # Leitura e gravação do recorde local
+├── recursos.lua                # Carregamento de imagens, fontes e áudio
 ├── classes/
 │   ├── classic.lua             # Biblioteca de classes OOP
 │   ├── anim8.lua               # Biblioteca de animações
@@ -85,7 +95,16 @@ projeto-tower-defense/
 │       └── bomba.lua           # Bombas explosivas
 ├── audio/                      # Efeitos sonoros e música
 ├── Sprites/                    # Imagens e sprites
+├── tests/                      # Verificações da simulação
 └── fontes/                     # Fontes personalizadas
+```
+
+## Verificações
+
+Na raiz do repositório, execute a bateria da simulação com um interpretador Lua. Ela testa o combate, as compras, o avanço das ondas e a estabilidade entre taxas de quadros.
+
+```bash
+lua tests/partida.lua
 ```
 
 ## 🛠️ Tecnologias Utilizadas
@@ -114,12 +133,10 @@ Este projeto foi desenvolvido para fins educacionais na disciplina TAC1.
 
 ## 🎯 Possíveis Melhorias Futuras
 
-- Sistema de ondas progressivas com dificuldade crescente
 - Mais tipos de torres e upgrades
 - Power-ups e habilidades especiais
-- Sistema de pontuação e ranking
 - Níveis com mapas diferentes
-- Menu inicial e sistema de pause
+- Menu inicial
 
 ---
 
